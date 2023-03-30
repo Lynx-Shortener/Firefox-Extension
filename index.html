@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script defer src="./popup.js"></script>
+    <style>
+        @import url("https://fonts.bunny.net/css?family=inter:300,400,500,700");
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: max-content;
+            font-family: Inter, Arial, sans-serif;
+            text-align: center;
+        }
+        .links-page {
+
+        }
+
+        .link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .link .link-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .link .link-actions .link-action {
+            padding: 0.2rem 1rem;
+            background-color: grey;
+            border-radius: 2px;
+        }
+
+        .links .link-actions img {
+            width: 10px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lynx</h1>
+    <main>
+        <div class="links" id="links-page">
+            <table class="links-table" id="links-table">
+                    <tr>
+                        <th>Date Created</th>
+                        <th>Slug</th>
+                        <th>Destination</th>
+                        <th></th>
+                    </tr>
+            </table>
+        </div>
+        <div class="settings" id="settings-page">
+            <label for="text">Domain</label>
+            <input type="text" name="domain"/>
+            <label for="secret">Secret</label>
+            <input type="password" name="secret"/>
+        </div>
+        <div class="navigation">
+
+        </div>
+    </main>
+</body>
+</html>
