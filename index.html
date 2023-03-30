@@ -51,6 +51,26 @@
             width: 10px;
             color: white;
         }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pagination-arrow {
+            padding: 0.2rem 0.5rem;
+            background-color: #3C73E9;
+            border-radius: 2px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .pagination-arrow[disabled=true] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -64,6 +84,11 @@
                     <th>Destination</th>
                 </thead>
             </table>
+            <div class="pagination">
+                <div class="pagination-arrow page-left" id="page-left">&lt;</div>
+                <p id="page-text">Links 1 - 10 (Page 1/20)</p>
+                <div class="pagination-arrow page-right" id="page-right">&gt;</div>
+            </div>
         </div>
         <div class="settings" id="settings-page">
             <label for="text">Domain</label>

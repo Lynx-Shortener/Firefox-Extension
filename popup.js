@@ -1,5 +1,8 @@
 let currentPage = 0;
-let remaining;
+let pagesize = 10;
+let itemsOnPage = 0;
+let remaining = 0;
+let totalPages = 0;
 
 let settings = {}
 
@@ -65,8 +68,24 @@ const deleteLink = async (link, linkElement) => {
     }
 }
 
-const appendLinks = (links) => {
+const previousPage = () => {
+    if (currentPage == 0) return;
+    currentPage--;
+    loadLinks();
+}
+
+const nextPage = () => {
+    if (currentPage == totalPages) return;
+    currentPage++;
+    loadLinks();
+}
+
+const updateLinks = (links) => {
     const linkTable = document.getElementById("links-table");
+    const existingLinks = linkTable.querySelectorAll(".link");
+    [...existingLinks].forEach((link) => {
+        link.remove();
+    })
     links.forEach((link, index) => {
         const row = linkTable.insertRow(index + 1);
         row.classList.add("link");
@@ -123,9 +142,9 @@ const appendLinks = (links) => {
 
 const loadLinks = async () => {
     const query = new URLSearchParams({
-        pagesize: 5,
-        page: 0,
-        search: "",
+        page: currentPage,
+        pagesize,
+        currentPage: 0,
         sortType: "1",
         sortField: "slug"
     }).toString()
@@ -139,14 +158,28 @@ const loadLinks = async () => {
 
     const links = await response.json();
 
-    appendLinks(links.result.links);
+    updateLinks(links.result.links);
 
     remaining = links.result.remaining;
+
+    if (currentPage == 0) {
+        totalPages = remaining;
+    }
+
+    let itemStart = (currentPage * pagesize) + 1;
+    let itemEnd = itemStart + links.result.links.length - 1;
+
+    document.getElementById("page-text").innerText = `Links ${itemStart} - ${itemEnd} (Page ${currentPage + 1}/${totalPages + 1})`;
+    document.getElementById("page-left").setAttribute("disabled", currentPage == 0);
+    document.getElementById("page-right").setAttribute("disabled", currentPage == totalPages);
 }
 
 const init = async () => {
     await getValues();
     await loadLinks();
+
+    document.getElementById("page-left").addEventListener("click", previousPage);
+    document.getElementById("page-right").addEventListener("click", nextPage);
 }
 
 [...document.querySelectorAll("input")].forEach((input) => {
