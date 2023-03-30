@@ -16,14 +16,15 @@
             font-family: Inter, Arial, sans-serif;
             text-align: center;
         }
-        .links-page {
 
+        .links-table {
+            border-spacing: 0.5rem 0.8rem;
+            text-align: left;
         }
 
-        .link {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+        .link-deleted {
+            text-decoration: line-through;
+            color: tomato;
         }
 
         .link .link-actions {
@@ -38,6 +39,14 @@
             border-radius: 2px;
         }
 
+        .link .link-actions #action-delete {
+            background-color: tomato;
+        }
+
+        .link .link-actions #action-edit {
+            background-color: #3C73E9;
+        }
+
         .links .link-actions img {
             width: 10px;
             color: white;
@@ -48,13 +57,12 @@
     <h1>Lynx</h1>
     <main>
         <div class="links" id="links-page">
-            <table class="links-table" id="links-table">
-                    <tr>
-                        <th>Date Created</th>
-                        <th>Slug</th>
-                        <th>Destination</th>
-                        <th></th>
-                    </tr>
+            <table class="links-table" id="links-table" border="0">
+                <thead>
+                    <th>Date Created</th>
+                    <th>Slug</th>
+                    <th>Destination</th>
+                </thead>
             </table>
         </div>
         <div class="settings" id="settings-page">

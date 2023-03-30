@@ -13,7 +13,6 @@ const getValues = async () => {
 
     [...settingsPage.querySelectorAll("input")].forEach((setting) => {
         setting.value = settings[setting.getAttribute("name")] || "";
-        console.log(settings)
     })
 }
 
@@ -41,28 +40,50 @@ const formatDate = (date) => {
     return `${month} ${day}, ${year}`;
 }
 
+const deleteLink = async (link, linkElement) => {
+    const confirmDelete = confirm(`Are you sure you want to delete ${link.slug}?`);
+    if (confirmDelete) {
+        const response = await fetch(`${settings.domain}/api/link`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": settings.secret
+            },
+            body: JSON.stringify({
+                ids: [link.id]
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            linkElement.classList.add("link-deleted");
+            linkElement.querySelector(".link-actions").remove();
+        } else {
+            alert(data.message);
+        }
+    }
+}
+
 const appendLinks = (links) => {
     const linkTable = document.getElementById("links-table");
-    links.forEach((link) => {
-        const linkElement = document.createElement("tr");
-        linkElement.classList.add("link");
+    links.forEach((link, index) => {
+        const row = linkTable.insertRow(index + 1);
+        row.classList.add("link");
 
-        const linkDate = document.createElement("td");
+        const linkDate = row.insertCell(0);
         linkDate.classList.add("link-date");
         linkDate.innerText = formatDate(link.creationDate);
-        linkElement.appendChild(linkDate);
 
-        const linkSlug = document.createElement("td");
+        const linkSlug = row.insertCell(1);
         linkSlug.classList.add("link-slug");
         linkSlug.innerText = link.slug;
-        linkElement.appendChild(linkSlug);
 
-        const linkDestination = document.createElement("td");
+        const linkDestination = row.insertCell(2);
         linkDestination.classList.add("link-destination");
         linkDestination.innerText = link.destination;
-        linkElement.appendChild(linkDestination);
 
-        const linkActions = document.createElement("td");
+        const linkActions = row.insertCell(3);
         linkActions.classList.add("link-actions");
         const actions = [
             {
@@ -82,20 +103,27 @@ const appendLinks = (links) => {
             const image = document.createElement("img");
             image.src = chrome.runtime.getURL(`assets/icons/${action.icon}`);
             actionElement.appendChild(image);
+            if (action.id == "edit") {
+                const actionLink = document.createElement("a");
+                actionLink.href = `${settings.domain}/dash/overview?edit=${link.id}`;
+                actionLink.setAttribute("target","_blank");
+                actionLink.appendChild(actionElement);
+                linkActions.appendChild(actionLink);
+            } else {
+                linkActions.appendChild(actionElement);
+            }
 
-            linkActions.appendChild(actionElement);
-        })
-
-        linkElement.appendChild(linkActions);
-
-        linkTable.appendChild(linkElement);
+            if (action.id == "delete") {
+                actionElement.addEventListener("click", () => deleteLink(link, row));
+            }
+        });
     })
 
 }
 
 const loadLinks = async () => {
     const query = new URLSearchParams({
-        pagesize: 1,
+        pagesize: 5,
         page: 0,
         search: "",
         sortType: "1",
@@ -110,8 +138,6 @@ const loadLinks = async () => {
     })
 
     const links = await response.json();
-
-    console.log(links);
 
     appendLinks(links.result.links);
 
