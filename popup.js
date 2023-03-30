@@ -92,14 +92,22 @@ const updateLinks = (links) => {
 
         const linkDate = row.insertCell(0);
         linkDate.classList.add("link-date");
+        linkDate.setAttribute("title", new Date(link.creationDate).toISOString().replaceAll(/(T|Z)/g," ").trim());
         linkDate.innerText = formatDate(link.creationDate);
 
         const linkSlug = row.insertCell(1);
         linkSlug.classList.add("link-slug");
-        linkSlug.innerText = link.slug;
+        linkSlug.setAttribute("title", link.slug);
+
+        const linkSlugLink = document.createElement("a");
+        linkSlugLink.href = `${settings.domain}/${link.slug}`;
+        linkSlugLink.setAttribute("target","_blank");
+        linkSlugLink.appendChild(document.createTextNode(link.slug));
+        linkSlug.appendChild(linkSlugLink)
 
         const linkDestination = row.insertCell(2);
         linkDestination.classList.add("link-destination");
+        linkDestination.setAttribute("title", link.destination);
         linkDestination.innerText = link.destination;
 
         const linkActions = row.insertCell(3);
