@@ -6,6 +6,24 @@ let totalPages = 0;
 
 let settings = {}
 
+const setLoading = (loading) => {
+    document.querySelector(".links-table").style.display = loading ? "none" : "block";
+    document.querySelector(".pagination").style.display = loading ? "none" : "flex";
+
+    document.querySelector(".loader").style.display = loading ? "grid" : "none";
+}
+
+const setError = (error, text) => {
+    document.querySelector(".links-table").style.display = error ? "none" : "block";
+    document.querySelector(".pagination").style.display = error ? "none" : "flex";
+
+    document.querySelector(".error").style.display = error ? "block" : "none";
+
+    if (text) {
+        document.getElementById("error-text").innerText = text;
+    }
+}
+
 const saveValues = () => {
     chrome.storage.local.set(settings);
 }
@@ -80,13 +98,40 @@ const nextPage = () => {
     loadLinks();
 }
 
-const updateLinks = (links) => {
+const loadLinks = async () => {
+    setLoading(true);
+    const query = new URLSearchParams({
+        page: currentPage,
+        pagesize,
+        sortType: "1",
+        sortField: "slug"
+    }).toString()
+
+    const response = await fetch(`${settings.domain}/api/link/list?${query}`, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": settings.secret
+        }
+    }).catch((e) => {
+        setLoading(false);
+        setError(true, e);
+    })
+
+    const links = await response.json();
+
+    if (!links.success) {
+        setError(true, links.message);
+        return;
+    }
+
     const linkTable = document.getElementById("links-table");
     const existingLinks = linkTable.querySelectorAll(".link");
+
     [...existingLinks].forEach((link) => {
         link.remove();
     })
-    links.forEach((link, index) => {
+
+    links.result.links.forEach((link, index) => {
         const row = linkTable.insertRow(index + 1);
         row.classList.add("link");
 
@@ -146,27 +191,7 @@ const updateLinks = (links) => {
         });
     })
 
-}
-
-const loadLinks = async () => {
-    const query = new URLSearchParams({
-        page: currentPage,
-        pagesize,
-        currentPage: 0,
-        sortType: "1",
-        sortField: "slug"
-    }).toString()
-
-    const response = await fetch(`${settings.domain}/api/link/list?${query}`, {
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": settings.secret
-        }
-    })
-
-    const links = await response.json();
-
-    updateLinks(links.result.links);
+    setLoading(false);
 
     remaining = links.result.remaining;
 
@@ -183,11 +208,17 @@ const loadLinks = async () => {
 }
 
 const init = async () => {
-    await getValues();
-    await loadLinks();
+    setLoading(true);
 
     document.getElementById("page-left").addEventListener("click", previousPage);
     document.getElementById("page-right").addEventListener("click", nextPage);
+    document.getElementById("retry-button").addEventListener("click", () => {
+        setError(false);
+        loadLinks();
+    })
+
+    await getValues();
+    await loadLinks();
 }
 
 [...document.querySelectorAll("input")].forEach((input) => {

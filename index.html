@@ -17,6 +17,38 @@
             text-align: center;
         }
 
+        h1 {
+            margin-block: 1rem 0;
+        }
+
+        .links .loader {
+            height: 15rem;
+            display: grid;
+            place-items: center;
+        }
+        
+        .links .error {
+            display: none;
+            background-color: tomato;
+            margin: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .links .error button {
+            background: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            padding: 0.4rem 1rem;
+            cursor: pointer;
+        }
+
+        .links .loader img {
+            width: 2rem;            
+        }
+
         .links-table {
             border-spacing: 0.5rem 0.8rem;
             text-align: left;
@@ -109,6 +141,14 @@
                 <div class="pagination-arrow page-left" id="page-left">&lt;</div>
                 <p id="page-text">Links 1 - 10 (Page 1/20)</p>
                 <div class="pagination-arrow page-right" id="page-right">&gt;</div>
+            </div>
+            <div class="loader">
+                <img src="./assets/loader.svg" alt="">
+            </div>
+            <div class="error">
+                <h2>Error</h2>
+                <p id="error-text">Failed to load links</p>
+                <button id="retry-button">Retry</button>
             </div>
         </div>
         <div class="settings" id="settings-page">
