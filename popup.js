@@ -103,8 +103,8 @@ const loadLinks = async () => {
     const query = new URLSearchParams({
         page: currentPage,
         pagesize,
-        sortType: "1",
-        sortField: "slug"
+        sortType: "-1",
+        sortField: "creationDate"
     }).toString()
 
     const response = await fetch(`${settings.domain}/api/link/list?${query}`, {
@@ -152,8 +152,12 @@ const loadLinks = async () => {
 
         const linkDestination = row.insertCell(2);
         linkDestination.classList.add("link-destination");
-        linkDestination.setAttribute("title", link.destination);
-        linkDestination.innerText = link.destination;
+        
+        const linkDestinationText = document.createElement("div");
+        linkDestinationText.innerText = link.destination;
+        linkDestinationText.style.width = "12rem";
+        linkDestinationText.setAttribute("title", link.destination);
+        linkDestination.appendChild(linkDestinationText);
 
         const linkActions = row.insertCell(3);
         linkActions.classList.add("link-actions");

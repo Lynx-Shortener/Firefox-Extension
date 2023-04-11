@@ -85,10 +85,6 @@
         }
 
         .links .link-slug {
-            width: 5rem;
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
             padding-right: 0.5rem;
         }
         
@@ -96,9 +92,14 @@
             color: #3C73E9;
             text-decoration: none;
             font-weight: 500;
+            display: block;
+            width: 5rem;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .links .link-destination {
+        .links .link-destination div {
             width: 12rem;
             overflow-x: hidden;
             text-overflow: ellipsis;
