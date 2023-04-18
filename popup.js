@@ -3,11 +3,43 @@ let pagesize = 10;
 let itemsOnPage = 0;
 let remaining = 0;
 let totalPages = 0;
+let currentURL = "";
 
 let settings = {}
 
+const createLink = async (destination, slug) => {        
+    if (!settings.domain || settings.domain == "") {
+        alert("Domain has not been set.")
+    }
+    if (!settings.secret || settings.secret == "") {
+        alert("Secret has not been set.")
+    }
+
+    const response = await fetch(`${settings.domain}/api/link`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": settings.secret
+        },
+        body: JSON.stringify({
+            slug,
+            destination
+        })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) return alert(data.message)
+
+    const link = `${settings.domain}/${data.result.slug}`;
+
+    navigator.clipboard.writeText(link);
+
+    loadPage("links");
+}
+
 const loadPage = (newPage) => {
-    const pages = ["links","settings"];
+    const pages = ["links","settings","new-link"];
 
     pages.forEach((page) => {
         document.getElementById(`${page}-page`).style.display = page === newPage ? "block" : "none";
@@ -17,9 +49,27 @@ const loadPage = (newPage) => {
         headerLink.setAttribute("active", headerLink.dataset.page == newPage);
     });
 
-    // pages.filter(page => page != popupPage).forEach((page) => {
-    //     document.getElementById(`${page}-page`).style.display = 
-    // })
+    switch (newPage) {
+        case "new-link":
+            chrome.tabs.query({active: true}, tabs => {
+                console.log(tabs)
+                if (tabs[0]) {
+                    currentURL = tabs[0].url;
+
+                    const destinationInput = document.getElementById("new-link-destination");
+                    destinationInput.value = currentURL;
+                }
+            });
+        case "links":
+            currentPage = 0;
+            pagesize = 10;
+            itemsOnPage = 0;
+            remaining = 0;
+            totalPages = 0;
+            setLoading(true);
+            loadLinks();
+            
+    }
 }
 
 const setLoading = (loading) => {
@@ -264,10 +314,18 @@ const init = async () => {
         secretInput.type = toggleSecret.dataset.secretvisible === "true" ? "text" : "password";
     })
 
+    // New link
 
+    const newLinkButton = document.getElementById("new-link-button");
+    console.log(newLinkButton)
+    newLinkButton.addEventListener("click", () => {
+        let destination = document.getElementById("new-link-destination").value;
+        let slug = document.getElementById("new-link-slug").value;
+        createLink(destination, slug);
+    })
 
     await getValues();
-    await loadLinks();
+    loadPage("links");
 }
 
 [...document.querySelectorAll("input")].forEach((input) => {
@@ -277,5 +335,4 @@ const init = async () => {
     })
 });
 
-loadPage("settings");
 init();
