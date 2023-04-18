@@ -254,6 +254,18 @@ const init = async () => {
     if (dark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
 
+    // Toggle Secret
+
+    const toggleSecret = document.getElementById("toggle-secret");
+    toggleSecret.addEventListener("click", () => {
+        const secretInput = document.getElementById("secret-input");
+        console.log(toggleSecret.dataset)
+        toggleSecret.setAttribute("data-secretvisible", !(toggleSecret.dataset.secretvisible === "true"));
+        secretInput.type = toggleSecret.dataset.secretvisible === "true" ? "text" : "password";
+    })
+
+
+
     await getValues();
     await loadLinks();
 }
@@ -265,5 +277,5 @@ const init = async () => {
     })
 });
 
-loadPage("links");
+loadPage("settings");
 init();
