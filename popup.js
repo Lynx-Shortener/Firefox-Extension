@@ -6,6 +6,22 @@ let totalPages = 0;
 
 let settings = {}
 
+const loadPage = (newPage) => {
+    const pages = ["links","settings"];
+
+    pages.forEach((page) => {
+        document.getElementById(`${page}-page`).style.display = page === newPage ? "block" : "none";
+    })
+    
+    Array.from(document.getElementsByClassName("header-link")).forEach((headerLink) => {
+        headerLink.setAttribute("active", headerLink.dataset.page == newPage);
+    });
+
+    // pages.filter(page => page != popupPage).forEach((page) => {
+    //     document.getElementById(`${page}-page`).style.display = 
+    // })
+}
+
 const setLoading = (loading) => {
     document.querySelector(".links-table").style.display = loading ? "none" : "block";
     document.querySelector(".pagination").style.display = loading ? "none" : "flex";
@@ -221,6 +237,23 @@ const init = async () => {
         loadLinks();
     })
 
+    Array.from(document.getElementsByClassName("header-link")).forEach((headerLink) => {
+        headerLink.addEventListener("click", () => {
+            loadPage(headerLink.dataset.page);
+        });
+    });
+
+    let dark;
+
+    if (localStorage.getItem("dark") !== null) {
+        dark = localStorage.getItem("dark") === "true";
+    } else {
+        dark = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || false;
+    }
+
+    if (dark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+
     await getValues();
     await loadLinks();
 }
@@ -232,4 +265,5 @@ const init = async () => {
     })
 });
 
+loadPage("links");
 init();

@@ -6,19 +6,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script defer src="./popup.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         @import url("https://fonts.bunny.net/css?family=inter:300,400,500,700");
+        :root {
+            --bg-color-1: #ffffff;
+            --bg-color-2: #dddddd;
+            --bg-color-3: #acacac;
+            --bg-color-4: #888888;
+            --bg-color-5: #757575;
+            --bg-color-6: #666666;
+            --color-1: #222;
+            --color-2: #333;
+            --color-3: #555;
+            --color-4: #666;
+            --color-5: #888;
+            --color-6: #aaa;
+            --accent-color: white;
+            --accent-color-inactive: #b3b4da;
+            --accent: #3539a0;
+            --accent-hover: #464aad;
+            --accent-hover-active: #6063be;
+            --color-error: tomato;
+            --color-error-hover: #fd7f69;
+        }
+
+        :root.dark {
+            --bg-color-1: #0d1116;
+            --bg-color-2: #181c21;
+            --bg-color-3: #20262d;
+            --bg-color-4: #252346;
+            --bg-color-5: #2e2c53;
+            --bg-color-6: #2a2849;
+            --color-1: #edf2f5;
+            --color-2: #e5e5e7;
+            --color-3: #72757d;
+            --color-4: red;
+            --color-5: lighten(#0d0c1d, 75%);
+            --color-6: lighten(#0d0c1d, 70%);
+            --color-7: lighten(#0d0c1d, 110%);
+            --accent: #3c73e9;
+            --accent-color-inactive: #a2b5df;
+            --accent-hover: #598af5;
+            --accent-hover-active: #779ff7;
+            --color-error: tomato;
+            --color-error-hover: #fd7f69;
+        }
+
         html,
         body {
             margin: 0;
             padding: 0;
-            width: max-content;
+            width: 500px;
             font-family: Inter, Arial, sans-serif;
             text-align: center;
+            background-color: var(--bg-color-1);
+            color: var(--color-1);
         }
 
         h1 {
-            margin-block: 1rem 0;
+            margin: 0;
+        }
+
+        .header {
+            background-color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            padding: 1rem 3rem;
+        }
+
+        .header .header-pages {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header .header-pages .header-link {
+            cursor: pointer;
+        }
+
+        .header .header-pages .header-link i {
+            font-size: 1rem;
+            color: #ccc;
+        }
+
+        .header .header-pages .header-link[active="true"] i {
+            color: white;
         }
 
         .links .loader {
@@ -29,7 +105,7 @@
         
         .links .error {
             display: none;
-            background-color: tomato;
+            background-color: var(--color-error);
             margin: 1rem;
             padding: 1rem;
             border-radius: 5px;
@@ -56,7 +132,7 @@
 
         .link-deleted {
             text-decoration: line-through;
-            color: tomato;
+            color: var(--color-error);
         }
 
         .link .link-actions {
@@ -72,11 +148,11 @@
         }
 
         .link .link-actions #action-delete {
-            background-color: tomato;
+            background-color: var(--color-error);
         }
 
         .link .link-actions #action-edit {
-            background-color: #3C73E9;
+            background-color: var(--accent);
         }
 
         .links .link-actions img {
@@ -89,7 +165,7 @@
         }
         
         .links .link-slug a {
-            color: #3C73E9;
+            color: var(--accent);
             text-decoration: none;
             font-weight: 500;
             display: block;
@@ -115,7 +191,7 @@
 
         .pagination-arrow {
             padding: 0.2rem 0.5rem;
-            background-color: #3C73E9;
+            background-color: var(--accent);
             border-radius: 2px;
             color: white;
             cursor: pointer;
@@ -128,7 +204,20 @@
     </style>
 </head>
 <body>
-    <h1>Lynx</h1>
+    <div class="header">
+        <h1>Lynx</h1>
+        <div class="header-pages" id="header-links"> 
+            <div class="header-link" data-page="links">
+                <i class="fa-solid fa-list"></i>
+            </div>
+            <div class="header-link" data-page="settings">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <!-- <div class="header-link">
+                <i class="fa-solid fa-plus"></i>
+            </div> -->
+        </div>
+    </div>
     <main>
         <div class="links" id="links-page">
             <table class="links-table" id="links-table" border="0">
