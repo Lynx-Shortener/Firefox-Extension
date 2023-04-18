@@ -5,9 +5,10 @@ let remaining = 0;
 let totalPages = 0;
 let currentURL = "";
 
-let settings = {}
+let isChrome = !window.browser;
 
-const createLink = async (destination, slug) => {        
+const createLink = async (destination, slug) => {
+    let settings = await getSettings();
     if (!settings.domain || settings.domain == "") {
         alert("Domain has not been set.")
     }
@@ -102,20 +103,28 @@ const setError = (error, text) => {
     }
 }
 
-const saveValues = () => {
-    chrome.storage.sync.set(settings);
+const saveValues = (settings) => {
+    if (isChrome) {
+        window.chrome.storage.sync.set(settings);
+    } else {
+        window.browser.storage.sync.set(settings);
+    }
 }
 
-const getValues = () => {
-    return new Promise ((resolve, reject) => {
-        chrome.storage.sync.get(["domain", "secret"], (data) => {
-            resolve(data)
+const getSettings = () => {
+    if (isChrome) {
+        return new Promise ((resolve, reject) => {
+            window.chrome.storage.sync.get(["domain", "secret"], (data) => {
+                resolve(data)
+            })
         })
-    })
+    } else {
+        return window.browser.storage.sync.get(["domain","secret"]);
+    }
 }
 
 const loadValues = async () => {
-    settings = await getValues()
+    let settings = await getSettings();
     const settingsPage = document.getElementById("settings-page");
 
     [...settingsPage.querySelectorAll("input")].forEach((setting) => {
@@ -148,6 +157,7 @@ const formatDate = (date) => {
 }
 
 const deleteLink = async (link, linkElement) => {
+    let settings = await getSettings();
     const confirmDelete = confirm(`Are you sure you want to delete ${link.slug}?`);
     if (confirmDelete) {
         const response = await fetch(`${settings.domain}/api/link`, {
@@ -188,6 +198,7 @@ const nextPage = () => {
 }
 
 const loadLinks = async () => {
+    let settings = await getSettings();
     setLoading(true);
     const query = new URLSearchParams({
         page: currentPage,
@@ -351,8 +362,9 @@ const init = async () => {
 
 [...document.querySelectorAll("input")].forEach((input) => {
     input.addEventListener("change", () => {
+        let settings = {}
         settings[input.getAttribute("name")] = input.value;
-        saveValues();
+        saveValues(settings);
     })
 });
 
