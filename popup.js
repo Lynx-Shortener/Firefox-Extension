@@ -108,12 +108,13 @@ const saveValues = () => {
 }
 
 const getValues = async () => {
-    settings = await chrome.storage.local.get(["domain", "secret"]);
-    const settingsPage = document.getElementById("settings-page");
-
-    [...settingsPage.querySelectorAll("input")].forEach((setting) => {
-        setting.value = settings[setting.getAttribute("name")] || "";
-    })
+    chrome.storage.sync.get(["domain", "secret"], (settings) => {
+        const settingsPage = document.getElementById("settings-page");
+    
+        [...settingsPage.querySelectorAll("input")].forEach((setting) => {
+            setting.value = settings[setting.getAttribute("name")] || "";
+        })
+    });
 }
 
 const formatDate = (date) => {
