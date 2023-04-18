@@ -39,10 +39,23 @@ const createLink = async (destination, slug) => {
 }
 
 const loadPage = (newPage) => {
-    const pages = ["links","settings","new-link"];
+    const pages = [
+        {
+            display: "block",
+            name: "links"
+        },
+        {
+            display: "grid",
+            name: "settings"
+        },
+        {
+            display: "grid",
+            name: "new-link"
+        }
+    ]
 
     pages.forEach((page) => {
-        document.getElementById(`${page}-page`).style.display = page === newPage ? "block" : "none";
+        document.getElementById(`${page.name}-page`).style.display = page.name === newPage ? page.display : "none";
     })
     
     Array.from(document.getElementsByClassName("header-link")).forEach((headerLink) => {
@@ -145,7 +158,10 @@ const deleteLink = async (link, linkElement) => {
 
         if (data.success) {
             linkElement.classList.add("link-deleted");
-            linkElement.querySelector(".link-actions").remove();
+            Array.from(linkElement.querySelectorAll(".link-action")).forEach((button) => {
+                button.setAttribute("disabled", true);
+            })
+            document.getElementById("link-action-anchor").removeAttribute("href");
         } else {
             alert(data.message);
         }
@@ -249,6 +265,7 @@ const loadLinks = async () => {
                 const actionLink = document.createElement("a");
                 actionLink.href = `${settings.domain}/dash/overview?edit=${link.id}`;
                 actionLink.setAttribute("target","_blank");
+                actionLink.id = "link-action-anchor";
                 actionLink.appendChild(actionElement);
                 linkActions.appendChild(actionLink);
             } else {
@@ -256,7 +273,10 @@ const loadLinks = async () => {
             }
 
             if (action.id == "delete") {
-                actionElement.addEventListener("click", () => deleteLink(link, row));
+                actionElement.addEventListener("click", (e) => {
+                    if (e.target.getAttribute("disabled")) return;
+                    deleteLink(link, row);
+                });
             }
         });
     })
