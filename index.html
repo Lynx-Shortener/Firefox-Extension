@@ -114,6 +114,10 @@
             height: 440px;
         }
 
+        .links {
+            height: 100%;
+        }
+
         .links .loader {
             height: 15rem;
             display: grid;
@@ -123,10 +127,24 @@
         .links .error {
             display: none;
             background-color: var(--color-error);
-            margin: 1rem;
+            height: calc(100% - 0.5rem);
+            box-sizing: border-box;
+            margin: 0.5rem;
             padding: 1rem;
             border-radius: 5px;
             color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .links .error h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .links .error p {
+            font-size: 1.1rem;
         }
 
         .links .error button {
@@ -136,6 +154,7 @@
             border-radius: 5px;
             padding: 0.4rem 1rem;
             cursor: pointer;
+            font-size: 1.2rem;
         }
 
         .links .loader img {

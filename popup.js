@@ -78,6 +78,7 @@ const loadPage = (newPage) => {
             itemsOnPage = 0;
             remaining = 0;
             totalPages = 0;
+            setError(false)
             setLoading(true);
             loadLinks();
             
@@ -95,7 +96,7 @@ const setError = (error, text) => {
     document.querySelector(".links-table").style.display = error ? "none" : "block";
     document.querySelector(".pagination").style.display = error ? "none" : "flex";
 
-    document.querySelector(".error").style.display = error ? "block" : "none";
+    document.querySelector(".error").style.display = error ? "flex" : "none";
 
     if (text) {
         document.getElementById("error-text").innerText = text;
