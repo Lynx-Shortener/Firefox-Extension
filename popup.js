@@ -199,6 +199,11 @@ const nextPage = () => {
 
 const loadLinks = async () => {
     let settings = await getSettings();
+    if (Object.values(settings).length !== 2) {
+        setLoading(false);
+        setError("invalid-config", "Invalid config, please go to the settings tab");
+        return
+    }
     setLoading(true);
     const query = new URLSearchParams({
         page: currentPage,
