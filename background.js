@@ -1,11 +1,3 @@
-const getValues = () => {
-    return new Promise ((resolve, reject) => {
-        chrome.storage.sync.get(["domain", "secret"], (data) => {
-            resolve(data)
-        })
-    })
-}
-
 chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
         id: "lynx-create-link",
@@ -23,7 +15,7 @@ chrome.contextMenus.removeAll(() => {
     }
 
     const createLink = async (destination) => {        
-        const settings = await getValues();
+        const settings = await chrome.storage.local.get(["domain", "secret"]);
 
         if (!settings.domain || settings.domain == "") {
             createAlert("invalid-domain", "Domain has not been set.")
@@ -50,13 +42,17 @@ chrome.contextMenus.removeAll(() => {
 
         const link = `${settings.domain}/${data.result.slug}`;
 
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, 
-                {
-                    message: "copyText",
-                    textToCopy: link 
-                }, function(response) {})
-        })
+        const contentCopy = (text) => {
+            navigator.clipboard.writeText(text);
+        }
+
+        const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id},
+            func: contentCopy,
+            args: [link]
+        });
     }
 
     const handleContextMenuClick = (e) => {
