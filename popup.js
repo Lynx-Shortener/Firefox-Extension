@@ -5,9 +5,10 @@ let remaining = 0;
 let totalPages = 0;
 let currentURL = "";
 
-let settings = {}
+let isChrome = !window.browser;
 
-const createLink = async (destination, slug) => {        
+const createLink = async (destination, slug) => {
+    let settings = await getSettings();
     if (!settings.domain || settings.domain == "") {
         alert("Domain has not been set.")
     }
@@ -65,7 +66,6 @@ const loadPage = (newPage) => {
     switch (newPage) {
         case "new-link":
             chrome.tabs.query({active: true}, tabs => {
-                console.log(tabs)
                 if (tabs[0]) {
                     currentURL = tabs[0].url;
 
@@ -104,12 +104,28 @@ const setError = (error, text) => {
     }
 }
 
-const saveValues = () => {
-    chrome.storage.local.set(settings);
+const saveValues = (settings) => {
+    if (isChrome) {
+        window.chrome.storage.sync.set(settings);
+    } else {
+        window.browser.storage.sync.set(settings);
+    }
 }
 
-const getValues = async () => {
-    settings = await chrome.storage.local.get(["domain", "secret"]);
+const getSettings = () => {
+    if (isChrome) {
+        return new Promise ((resolve, reject) => {
+            window.chrome.storage.sync.get(["domain", "secret"], (data) => {
+                resolve(data)
+            })
+        })
+    } else {
+        return window.browser.storage.sync.get(["domain","secret"]);
+    }
+}
+
+const loadValues = async () => {
+    let settings = await getSettings();
     const settingsPage = document.getElementById("settings-page");
 
     [...settingsPage.querySelectorAll("input")].forEach((setting) => {
@@ -142,6 +158,7 @@ const formatDate = (date) => {
 }
 
 const deleteLink = async (link, linkElement) => {
+    let settings = await getSettings();
     const confirmDelete = confirm(`Are you sure you want to delete ${link.slug}?`);
     if (confirmDelete) {
         const response = await fetch(`${settings.domain}/api/link`, {
@@ -322,11 +339,7 @@ const init = async () => {
 
     let dark;
 
-    if (localStorage.getItem("dark") !== null) {
-        dark = localStorage.getItem("dark") === "true";
-    } else {
-        dark = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || false;
-    }
+    dark = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || false;
 
     if (dark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
@@ -336,7 +349,6 @@ const init = async () => {
     const toggleSecret = document.getElementById("toggle-secret");
     toggleSecret.addEventListener("click", () => {
         const secretInput = document.getElementById("secret-input");
-        console.log(toggleSecret.dataset)
         toggleSecret.setAttribute("data-secretvisible", !(toggleSecret.dataset.secretvisible === "true"));
         secretInput.type = toggleSecret.dataset.secretvisible === "true" ? "text" : "password";
     })
@@ -344,21 +356,21 @@ const init = async () => {
     // New link
 
     const newLinkButton = document.getElementById("new-link-button");
-    console.log(newLinkButton)
     newLinkButton.addEventListener("click", () => {
         let destination = document.getElementById("new-link-destination").value;
         let slug = document.getElementById("new-link-slug").value;
         createLink(destination, slug);
     })
 
-    await getValues();
+    await loadValues();
     loadPage("links");
 }
 
 [...document.querySelectorAll("input")].forEach((input) => {
     input.addEventListener("change", () => {
+        let settings = {}
         settings[input.getAttribute("name")] = input.value;
-        saveValues();
+        saveValues(settings);
     })
 });
 
