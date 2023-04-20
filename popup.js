@@ -65,6 +65,7 @@ const loadPage = (newPage) => {
     switch (newPage) {
         case "new-link":
             chrome.tabs.query({active: true}, tabs => {
+                console.log(tabs)
                 if (tabs[0]) {
                     currentURL = tabs[0].url;
 
@@ -104,19 +105,11 @@ const setError = (error, text) => {
 }
 
 const saveValues = () => {
-    chrome.storage.sync.set(settings);
+    chrome.storage.local.set(settings);
 }
 
-const getValues = () => {
-    return new Promise ((resolve, reject) => {
-        chrome.storage.sync.get(["domain", "secret"], (data) => {
-            resolve(data)
-        })
-    })
-}
-
-const loadValues = async () => {
-    settings = await getValues()
+const getValues = async () => {
+    settings = await chrome.storage.local.get(["domain", "secret"]);
     const settingsPage = document.getElementById("settings-page");
 
     [...settingsPage.querySelectorAll("input")].forEach((setting) => {
@@ -323,7 +316,11 @@ const init = async () => {
 
     let dark;
 
-    dark = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || false;
+    if (localStorage.getItem("dark") !== null) {
+        dark = localStorage.getItem("dark") === "true";
+    } else {
+        dark = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) || false;
+    }
 
     if (dark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
@@ -333,6 +330,7 @@ const init = async () => {
     const toggleSecret = document.getElementById("toggle-secret");
     toggleSecret.addEventListener("click", () => {
         const secretInput = document.getElementById("secret-input");
+        console.log(toggleSecret.dataset)
         toggleSecret.setAttribute("data-secretvisible", !(toggleSecret.dataset.secretvisible === "true"));
         secretInput.type = toggleSecret.dataset.secretvisible === "true" ? "text" : "password";
     })
@@ -340,13 +338,14 @@ const init = async () => {
     // New link
 
     const newLinkButton = document.getElementById("new-link-button");
+    console.log(newLinkButton)
     newLinkButton.addEventListener("click", () => {
         let destination = document.getElementById("new-link-destination").value;
         let slug = document.getElementById("new-link-slug").value;
         createLink(destination, slug);
     })
 
-    await loadValues();
+    await getValues();
     loadPage("links");
 }
 
